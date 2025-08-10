@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Management</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body>
+    <main>
+      <a href="../index.html" class="go-home"> Go to Home </a>
+      <h2 class="section-title">Task Management</h2>
+
+      <section id="task-management">
+        <!-- Add tasks form -->
+        <form id="task-form">
+          <input
+            type="text"
+            id="task-name"
+            name="task-name"
+            required
+            placeholder="Enter task name"
+          />
+          <button type="submit" id="add-task">Add Task</button>
+        </form>
+
+        <!-- Task list -->
+        <ul id="task-list">
+          <!-- Tasks will be dynamically added here -->
+        </ul>
+      </section>
+    </main>
+
+    <script src="../scripts/task-management.js"></script>
+  </body>
+</html>

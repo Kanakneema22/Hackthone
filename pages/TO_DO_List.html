@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>To‑Do-List</title>
+    <link rel="stylesheet" href="../style1.css" />
+    <style>
+      /* --- Base from user's CSS (kept structure + tweaks) --- */
+      :root {
+        --bg-1: #000000;
+        --bg-2: #1a1a1a;
+        --muted: #d9d9d9;
+        --card: #1f1f1f;
+        --accent: #3b82f6; /* blue accent */
+        --success: #16a34a;
+        --danger: #ef4444;
+        --glass: rgba(255, 255, 255, 0.04);
+        --glass-strong: rgba(255, 255, 255, 0.06);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+      }
+      html,
+      body {
+        min-height: 100vh;
+        width: 100%;
+        color: #fff;
+        background: linear-gradient(
+          135deg,
+          var(--bg-1),
+          var(--bg-2),
+          var(--bg-1)
+        );
+        -webkit-font-smoothing: antialiased;
+      }
+      .go-home {
+        text-decoration: none;
+        color: white;
+        font-weight: 700;
+        padding: 1rem 1.25rem;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      }
+      .go-home:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+      /* Hide default scrollbars but keep scrollable */
+      *::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+      }
+      *::-webkit-scrollbar-thumb {
+        background: #2b2b2b;
+        border-radius: 10px;
+      }
+
+      header {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.25rem;
+      }
+      header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--muted);
+      }
+      header h1 span {
+        color: #fff;
+      }
+
+      main {
+        width: 100%;
+        max-width: 1100px;
+        margin: 1rem auto;
+        padding: 1rem;
+      }
+
+      /* Hero / top area (kept minimal) */
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-radius: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(0, 0, 0, 0.05)
+        );
+        backdrop-filter: blur(6px);
+      }
+
+      /* TODO APP CARD */
+      .todo-app {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: linear-gradient(90deg, var(--card), rgba(31, 31, 31, 0.85));
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      }
+
+      /* Controls row */
+      .controls {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .input-wrap {
+        flex: 1;
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      input#task-name {
+        flex: 1;
+        padding: 0.85rem 1rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: transparent;
+        color: var(--muted);
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.18s;
+      }
+      input#task-name::placeholder {
+        color: rgba(217, 217, 217, 0.5);
+      }
+      button#add-task {
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(180deg, var(--accent), #2563eb);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(59, 130, 246, 0.15);
+        transition: transform 0.12s;
+      }
+      button#add-task:active {
+        transform: translateY(1px);
+      }
+
+      /* quick filters/status */
+      .filters {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .filters button {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .filters button.active {
+        border-color: var(--accent);
+        color: var(--accent);
+        box-shadow: 0 6px 18px rgba(59, 130, 246, 0.06);
+      }
+
+      /* Task list grid */
+      .list-wrap {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem;
+      }
+      ul#task-list {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .task-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.8rem;
+        border-radius: 10px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(0, 0, 0, 0.02)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.02);
+        transition: transform 0.18s, box-shadow 0.18s;
+        cursor: grab;
+      }
+      .task-card:active {
+        cursor: grabbing;
+      }
+      .task-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+      }
+
+      .checkbox {
+        width: 1.05rem;
+        height: 1.05rem;
+        border-radius: 6px;
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        display: inline-grid;
+        place-items: center;
+        cursor: pointer;
+        background: transparent;
+      }
+      .checkbox.checked {
+        background: linear-gradient(90deg, var(--accent), #06b6d4);
+        border-color: transparent;
+      }
+
+      .task-name {
+        flex: 1;
+        font-size: 1rem;
+        color: var(--muted);
+        word-break: break-word;
+      }
+      .task-name.completed {
+        color: rgba(217, 217, 217, 0.6);
+        text-decoration: line-through;
+      }
+
+      .task-meta {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .btn {
+        background: transparent;
+        border: 0;
+        padding: 0.35rem;
+        border-radius: 0.5rem;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .btn-danger {
+        color: var(--danger);
+      }
+
+      /* small helper chips */
+      .chip {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        color: var(--muted);
+      }
+
+      /* completed visual */
+      .task-card.completed {
+        opacity: 0.6;
+        transform: none;
+      }
+
+      /* empty state */
+      .empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px dashed rgba(255, 255, 255, 0.03);
+        color: rgba(217, 217, 217, 0.7);
+      }
+
+      /* Animations */
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .task-card {
+        animation: popIn 0.28s ease both;
+      }
+
+      /* Responsive layout */
+      @media (min-width: 720px) {
+        .hero {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .todo-app {
+          grid-template-columns: 400px 1fr;
+        }
+        ul#task-list {
+          max-height: 60vh;
+          overflow: auto;
+          padding-right: 0.5rem;
+        }
+      }
+      @media (min-width: 1100px) {
+        main {
+          padding: 1.75rem;
+        }
+      }
+
+      /* Accessibility focus */
+      input#task-name:focus,
+      button#add-task:focus {
+        box-shadow: 0 6px 18px rgba(59, 130, 246, 0.08);
+        outline: none;
+      }
+
+      /* subtle floating background shapes (decoration) */
+      .bg-deco {
+        position: fixed;
+        right: -10vw;
+        top: 10vh;
+        width: 40vw;
+        height: 40vw;
+        filter: blur(40px);
+        opacity: 0.06;
+        pointer-events: none;
+        background: radial-gradient(
+          circle at 30% 30%,
+          #3b82f6aa,
+          transparent 30%
+        );
+      }
+
+      /* small top stats */
+      .stats {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="../index.html" class="go-home"> Go to Home </a>
+    <div class="bg-deco" aria-hidden></div>
+    <header>
+      <h1>To‑Do-List</h1>
+      <div class="stats" id="stats">0 tasks • 0 left</div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="todo-app" role="application" aria-label="To Do App">
+          <!-- left column: form + filters -->
+          <div
+            style="
+              padding: 1rem;
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+            "
+          >
+            <div>
+              <div
+                style="
+                  font-weight: 700;
+                  font-size: 1.15rem;
+                  color: var(--muted);
+                "
+              >
+                Add a task
+              </div>
+              <div class="controls" style="margin-top: 0.6rem">
+                <div class="input-wrap">
+                  <input
+                    id="task-name"
+                    type="text"
+                    placeholder="What do you want to do?"
+                    aria-label="New task"
+                  />
+                </div>
+                <button id="add-task" aria-label="Add task">Add</button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem">
+              <div style="font-weight: 600; color: var(--muted)">Filters</div>
+              <div class="filters" role="tablist" aria-label="Filter tasks">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="completed">
+                  Completed
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem">
+              <div style="font-weight: 600; color: var(--muted)">
+                Quick tips
+              </div>
+              <div class="chip">Press Enter to add</div>
+            </div>
+          </div>
+
+          <!-- right column: tasks -->
+          <div style="padding: 1rem">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+              "
+            >
+              <div style="font-weight: 700; color: var(--muted)">
+                Your Tasks
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center">
+                <button
+                  id="clear-completed"
+                  class="btn"
+                  title="Clear completed"
+                >
+                  Clear completed
+                </button>
+                <button id="clear-all" class="btn btn-danger" title="Clear all">
+                  Clear all
+                </button>
+              </div>
+            </div>
+
+            <div class="list-wrap">
+              <ul id="task-list" aria-live="polite"></ul>
+              <div id="empty-state" class="empty" style="display: none">
+                No tasks yet — add your first task ✨
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="../scripts/to-do-list.js"></script>
+  </body>
+</html>
