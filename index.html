@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Productivity Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Hello, <span id="userNameContainer">User</span>👋</h1>
+      <nav>
+        <ul>
+          <li>
+            <a href="https://github.com/kanakneema22" target="_blank"
+              >GitHub</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section id="hero">
+        <img
+          src="https://i.pinimg.com/736x/96/28/7a/96287ae84a971bae51c7ab3a335330ce.jpg"
+          alt="Productivity Hero Image"
+          class="hero-image"
+        />
+
+        <div class="hero-content">
+          <div id="time-location-container">
+            <div id="time-container">
+              <h2 id="current-time"></h2>
+            </div>
+            <div id="location-container">
+              <i class="ri-map-pin-2-line"></i>
+              <p id="location"></p>
+            </div>
+          </div>
+
+          <div id="weather-container">
+            <h2 id="temperature"></h2>
+            <p id="weather-description"></p>
+            <p id="precipitation"></p>
+            <p id="humidity"></p>
+            <p id="wind-speed"></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="services">
+        <a class="service-card" data-id="1" href="./pages/TO_DO_List.html">
+          <img src="./assets/to-do-list.jpg" alt="Task Management" />
+          <div class="content">
+            <h2 class="service-name">To Do List</h2>
+            <p class="service-description">Plan your day, one task at a time.</p>
+          </div>
+        </a>
+        
+        <a class="service-card" data-id="1" href="./pages/Task-Management.html">
+          <img src="./assets/Task-Management-Img.jpg" alt="Task Management" />
+          <div class="content">
+            <h2 class="service-name">Task Management</h2>
+            <p class="service-description">Manage your tasks efficiently.</p>
+          </div>
+        </a>
+
+        <a class="service-card" data-id="2" href="./pages/Daily-Planner.html">
+          <img src="./assets/Daily-Planner-Img.jpg" alt="Daily Planner" />
+          <div class="content">
+            <h2 class="service-name">Daily Planner</h2>
+            <p class="service-description">Plan your day effectively.</p>
+          </div>
+        </a>
+
+        <a class="service-card" data-id="3" href="./pages/Motivation.html">
+          <img src="./assets/Motivation-Img.jpg" alt="Motivation" />
+          <div class="content">
+            <h2 class="service-name">Motivation</h2>
+            <p class="service-description">
+              Stay motivated and focused on your goals.
+            </p>
+          </div>
+        </a>
+
+        <a class="service-card" data-id="4" href="./pages/Pomodoro-Timer.html">
+          <img src="./assets/Pomodoro-Timer-Img.jpg" alt="Pomodoro Timer" />
+          <div class="content">
+            <h2 class="service-name">Pomodoro Timer</h2>
+            <p class="service-description">
+              Boost your productivity with the Pomodoro Technique.
+            </p>
+          </div>
+        </a>
+      </section>
+    </main>
+
+    <script src="/Hacker Project/scripts/script.js" type="module"></script>
+  </body>
+</html>
