@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mini Habit Tracker - HackThone 72HR</title>
+    <!-- GSAP CDN -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
+      defer
+    ></script>
+    <style>
+      :root {
+        --bg: #0f1724;
+        --card: #0b1220;
+        --muted: #94a3b8;
+        --accent: #7c3aed;
+        --accent-2: #06b6d4;
+        --glass: rgba(255, 255, 255, 0.04);
+        --radius: 14px;
+        --max-width: 1100px;
+        --safe-pad: 16px;
+        --shadow: 0 8px 30px rgba(2, 6, 23, 0.6);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+          Roboto, "Helvetica Neue", Arial;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, var(--bg) 0%, #071022 100%);
+        color: #e6eef8;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        font-size: 16px;
+      }
+      .wrap {
+        width: 100%;
+        max-width: var(--max-width);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 22px;
+        align-items: start;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 12px;
+      }
+      .logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 20px;
+        color: white;
+        box-shadow: 0 6px 18px rgba(124, 58, 237, 0.24);
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+      p.lead {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      /* Left column - tracker controls */
+      .left {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 16px;
+        border-radius: var(--radius);
+        min-height: 320px;
+      }
+
+      .add-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .add-form input {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: transparent;
+        color: inherit;
+        font-size: 14px;
+      }
+      .btn {
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        border: none;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(7, 10, 27, 0.6);
+      }
+      .small {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+
+      .habits {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .habit {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          rgba(255, 255, 255, 0.02)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.45);
+      }
+      .habit .left-chunk {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex: 1;
+      }
+      .habit .title {
+        font-weight: 600;
+      }
+      .tag {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 6px 8px;
+        border-radius: 999px;
+        background: var(--glass);
+      }
+
+      .track-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+      .streak {
+        font-weight: 700;
+        color: var(--accent);
+        font-size: 13px;
+      }
+      .progress-wrap {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      /* Progress ring */
+      .ring {
+        width: 56px;
+        height: 56px;
+        display: inline-block;
+      }
+      svg {
+        display: block;
+      }
+
+      /* Right column - bigger panels */
+      .right {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 16px;
+      }
+      .panel {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 16px;
+        border-radius: var(--radius);
+        min-height: 140px;
+      }
+      .panel h3 {
+        margin: 0 0 8px 0;
+      }
+      .today-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      /* Responsive */
+      @media (max-width: 1000px) {
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+        .left {
+          order: 2;
+        }
+        .right {
+          order: 1;
+        }
+      }
+
+      /* micro interactions */
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 8px;
+        border-radius: 10px;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .empty {
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+        padding: 20px;
+      }
+
+      /* accessibility focus */
+      button:focus,
+      input:focus {
+        outline: 3px solid rgba(124, 58, 237, 0.18);
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" role="application" aria-label="Mini Habit Tracker">
+      <div class="left" aria-live="polite">
+        <header>
+          <div class="logo">HT</div>
+          <div>
+            <h1>Mini Habit Tracker</h1>
+            <p class="lead">Build tiny habits — track streaks & progress.</p>
+          </div>
+        </header>
+        <form id="addForm" class="add-form" aria-label="Add new habit">
+          <input
+            id="habitInput"
+            placeholder="Add habit (e.g. Read 10 min)"
+            aria-label="New habit"
+            maxlength="40"
+          />
+          <button class="btn small" type="submit">Add</button>
+        </form>
+
+        <div class="habits" id="habitsList" aria-live="polite"></div>
+
+        <div
+          style="
+            margin-top: 14px;
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <button class="btn-ghost" id="seedBtn">Seed sample</button>
+          <button class="btn-ghost" id="clearBtn">Clear all</button>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="panel">
+          <h3>Today — Quick Actions</h3>
+          <div class="today-list" id="todayList"></div>
+        </div>
+
+        <div class="panel" id="statsPanel">
+          <h3>Progress Summary</h3>
+          <div
+            style="
+              display: flex;
+              gap: 18px;
+              align-items: center;
+              flex-wrap: wrap;
+            "
+          >
+            <div style="min-width: 160px">
+              <div style="font-size: 12px; color: var(--muted)">
+                Total Habits
+              </div>
+              <div id="totalHabits" style="font-weight: 700; font-size: 20px">
+                0
+              </div>
+            </div>
+
+            <div style="min-width: 160px">
+              <div style="font-size: 12px; color: var(--muted)">
+                Completed Today
+              </div>
+              <div
+                id="completedToday"
+                style="font-weight: 700; font-size: 20px"
+              >
+                0
+              </div>
+            </div>
+
+            <div style="min-width: 220px">
+              <div style="font-size: 12px; color: var(--muted)">
+                Best Streak
+              </div>
+              <div id="bestStreak" style="font-weight: 700; font-size: 20px">
+                0
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const qs = (s) => document.querySelector(s);
+      const qsa = (s) => document.querySelectorAll(s);
+
+      const habitsKey = "ht_mini_habits_v1";
+      const todayKey = "ht_mini_today_" + new Date().toISOString().slice(0, 10);
+      const uid = () => Math.random().toString(36).slice(2, 9);
+      const now = () => new Date().toISOString();
+
+      function loadHabits() {
+        try {
+          const raw = localStorage.getItem(habitsKey);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveHabits(h) {
+        localStorage.setItem(habitsKey, JSON.stringify(h));
+        render();
+      }
+
+      let habits = loadHabits();
+
+      function makeHabitEl(h) {
+        const el = document.createElement("div");
+        el.className = "habit";
+        el.dataset.id = h.id;
+
+        el.innerHTML = `
+      <div class="left-chunk">
+        <button aria-label="complete ${h.title}" class="btn-ghost toggleBtn">${
+          h.doneToday ? "✓" : "+"
+        }</button>
+        <div>
+          <div class="title">${escapeHtml(h.title)}</div>
+          <div class="tag">Created ${new Date(
+            h.created
+          ).toLocaleDateString()}</div>
+        </div>
+      </div>
+      <div class="track-meta">
+        <div class="progress-wrap">
+          <div class="ring" aria-hidden="true">${progressRingMarkup(h)}</div>
+        </div>
+        <div class="streak">🔥 ${h.streak} day(s)</div>
+      </div>
+    `;
+
+        // buttons
+        const toggle = el.querySelector(".toggleBtn");
+        toggle.addEventListener("click", () => toggleDone(h.id));
+
+        gsap.from(el, { y: 12, opacity: 0, duration: 0.5, ease: "power2.out" });
+        return el;
+      }
+
+      function progressRingMarkup(h) {
+        const pct = Math.min(100, Math.round((h.streak / 7) * 100));
+        const r = 24;
+        const c = 2 * Math.PI * r;
+        const offset = c * (1 - pct / 100);
+        return `
+      <svg viewBox="0 0 60 60" width="56" height="56">
+        <defs>
+          <linearGradient id="g-${h.id}" x1="0" x2="1">
+            <stop offset="0%" stop-color="var(--accent)" />
+            <stop offset="100%" stop-color="var(--accent-2)" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(30,30)">
+          <circle r="${r}" fill="transparent" stroke="rgba(255,255,255,0.03)" stroke-width="6"></circle>
+          <circle class="progress-circle" r="${r}" fill="transparent" stroke="url(#g-${h.id})" stroke-width="6" stroke-linecap="round"
+            stroke-dasharray="${c}" stroke-dashoffset="${offset}"></circle>
+          <text x="0" y="4" text-anchor="middle" style="font-size:12px;fill:var(--muted);">${pct}%</text>
+        </g>
+      </svg>
+    `;
+      }
+
+      function escapeHtml(s) {
+        return s.replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[c])
+        );
+      }
+
+      function render() {
+        const list = qs("#habitsList");
+        list.innerHTML = "";
+        const todayList = qs("#todayList");
+        todayList.innerHTML = "";
+
+        habits.forEach((h) => {
+          list.appendChild(makeHabitEl(h));
+          const row = document.createElement("div");
+          row.style.display = "flex";
+          row.style.justifyContent = "space-between";
+          row.style.alignItems = "center";
+
+          row.innerHTML = `
+        <div>${escapeHtml(h.title)}</div>
+        <button class='btn small quick' data-id='${h.id}'>${
+            h.doneToday ? "Done" : "Do"
+          }</button>
+      `;
+          row
+            .querySelector("button")
+            .addEventListener("click", () => toggleDone(h.id));
+          todayList.appendChild(row);
+        });
+
+        // stats
+        qs("#totalHabits").textContent = habits.length;
+        qs("#completedToday").textContent = habits.filter(
+          (h) => h.doneToday
+        ).length;
+        const best = habits.reduce((m, h) => Math.max(m, h.bestStreak || 0), 0);
+        qs("#bestStreak").textContent = best;
+
+        // micro animations for progress rings
+        qsa(".progress-circle").forEach((c, i) => {
+          const total = c.getAttribute("stroke-dasharray");
+          const offset = c.getAttribute("stroke-dashoffset");
+          gsap.fromTo(
+            c,
+            { strokeDashoffset: total },
+            {
+              strokeDashoffset: offset,
+              duration: 0.8,
+              ease: "power2.out",
+              delay: i * 0.05,
+            }
+          );
+        });
+
+        // if empty
+        if (habits.length === 0) {
+          list.innerHTML = `<div class='empty'>No habits yet — add one to get started.</div>`;
+          todayList.innerHTML = `<div class='empty'>No actions for today.</div>`;
+        }
+      }
+
+      function toggleDone(id) {
+        const idx = habits.findIndex((h) => h.id === id);
+        if (idx === -1) return;
+        const h = habits[idx];
+
+        if (h.doneToday) {
+          h.doneToday = false;
+          h.streak = Math.max(0, h.streak - 1);
+          const el = document.querySelector(`.habit[data-id='${id}']`);
+          if (el)
+            gsap.fromTo(
+              el,
+              { scale: 1.02 },
+              { scale: 1, duration: 0.35, ease: "elastic.out(1,0.6)" }
+            );
+        } else {
+          h.doneToday = true;
+          h.streak = h.lastDone && isYesterday(h.lastDone) ? h.streak + 1 : 1;
+          h.bestStreak = Math.max(h.bestStreak || 0, h.streak);
+          h.lastDone = now();
+          const el = document.querySelector(`.habit[data-id='${id}']`);
+          if (el) {
+            gsap.fromTo(
+              el,
+              { x: -6, rotation: -3 },
+              { x: 0, rotation: 0, duration: 0.5, ease: "elastic.out(1,0.6)" }
+            );
+            gsap.fromTo(
+              el,
+              { boxShadow: "0 0 0 rgba(124,58,237,0.0)" },
+              {
+                boxShadow: "0 18px 40px rgba(124,58,237,0.12)",
+                duration: 0.6,
+                yoyo: true,
+                repeat: 1,
+              }
+            );
+          }
+          const fly = document.createElement("div");
+          fly.textContent = "✨";
+          fly.style.position = "fixed";
+          fly.style.left = "50%";
+          fly.style.top = "50%";
+          fly.style.transform = "translate(-50%,-50%)";
+          fly.style.fontSize = "22px";
+          document.body.appendChild(fly);
+          gsap.to(fly, {
+            y: -120,
+            opacity: 0,
+            scale: 1.6,
+            duration: 0.9,
+            ease: "power2.out",
+            onComplete: () => fly.remove(),
+          });
+        }
+
+        saveHabits(habits);
+      }
+
+      function isYesterday(iso) {
+        const d = new Date(iso);
+        const y = new Date();
+        const diff = Math.floor(
+          (new Date(y.toDateString()) - new Date(d.toDateString())) / 86400000
+        );
+        return diff === 1;
+      }
+
+      qs("#addForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const val = qs("#habitInput").value.trim();
+        if (!val) return;
+        const h = {
+          id: uid(),
+          title: val,
+          created: now(),
+          streak: 0,
+          bestStreak: 0,
+          lastDone: null,
+          doneToday: false,
+        };
+        habits.unshift(h);
+        qs("#habitInput").value = "";
+        saveHabits(habits);
+        gsap.fromTo(
+          ".add-form .btn",
+          { scale: 0.95, opacity: 0.8 },
+          { scale: 1, opacity: 1, duration: 0.4, ease: "elastic.out(1,0.6)" }
+        );
+      });
+
+      qs("#seedBtn").addEventListener("click", () => {
+        habits = [
+          {
+            id: uid(),
+            title: "Read 10 min",
+            created: now(),
+            streak: 2,
+            bestStreak: 5,
+            lastDone: now(),
+            doneToday: true,
+          },
+          {
+            id: uid(),
+            title: "Walk 5k steps",
+            created: now(),
+            streak: 0,
+            bestStreak: 2,
+            lastDone: null,
+            doneToday: false,
+          },
+          {
+            id: uid(),
+            title: "Meditate 5 min",
+            created: now(),
+            streak: 4,
+            bestStreak: 4,
+            lastDone: now(),
+            doneToday: true,
+          },
+        ];
+        saveHabits(habits);
+      });
+
+      qs("#clearBtn").addEventListener("click", () => {
+        if (confirm("Clear all habits?")) {
+          habits = [];
+          saveHabits(habits);
+        }
+      });
+
+      (function resetDailyFlagsIfNeeded() {
+        const lastReset = localStorage.getItem("ht_mini_lastreset");
+        const today = new Date().toISOString().slice(0, 10);
+        if (lastReset !== today) {
+          habits = habits.map((h) => ({ ...h, doneToday: false }));
+          localStorage.setItem("ht_mini_lastreset", today);
+          saveHabits(habits);
+        } else {
+          render();
+        }
+      })();
+
+      qs("#habitInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") e.preventDefault();
+      });
+
+      window.addEventListener("load", () => {
+        gsap.from(".wrap", {
+          opacity: 0,
+          y: 18,
+          duration: 0.8,
+          ease: "power2.out",
+        });
+      });
+    </script>
+  </body>
+</html>
