@@ -1,4 +1,4 @@
-# Hackthone Project  
+# Hackthone Project   
  
 A web-based project developed for Hackathon practice, focusing on modern web design, interactivity, and user experience.  
 
